@@ -1,0 +1,29 @@
+                                                Alarm Clock
+
+Alarm Clock is a simple yet powerful tool designed to help you stay on top of your schedule, ensuring you never miss an important task or event. Whether it's waking up on time, remembering an important meeting, or keeping track of your daily routines, this alarm clock will help you manage your time effectively.
+
+ *Features
+
+- Customizable Alarms: Set multiple alarms with customizable labels to remind you of specific tasks or events.
+- Recurring Alarms: Schedule alarms to repeat on specific days of the week to match your routine.
+- Easy-to-Use Interface: Intuitive and user-friendly design that makes setting and managing alarms straightforward.
+- Snooze Functionality: Option to snooze alarms for a set duration.
+- Reminder System: Set reminders for important tasks or events, ensuring you’re always on top of your plans.
+
+ *Installation
+
+To install and run the Alarm Clock, follow these steps:
+
+1. Clone the repository:
+	git clone https://github.com/your-username/alarm-clock.git
+	cd alarm-clock
+2. Install the necessary dependencies:
+	go mod tidy
+3. Run the application:
+	go run cmd/main.go
+
+ *Usage
+
+1. Setting an Alarm: Open the application and navigate to the 'Set Alarm' section. Enter the time and label for your alarm, then save it.
+2. Managing Alarms: View, edit, or delete your alarms from the 'Alarms' section.
+3. Snoozing an Alarm: When an alarm goes off, you have the option to snooze it for a selected duration.

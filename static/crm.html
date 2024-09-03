@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time for action</title>
+</head>
+<style>
+    body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    background: linear-gradient(135deg, #7cafad, #4363f1);
+    color: #333;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.alarm-form {
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
+    background: linear-gradient(135deg, #a8edea, #5071dd);
+}
+
+.alarm-list {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.alarm-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: linear-gradient(135deg, #74ebd5, #6c5ce7);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.alarm-item:hover {
+    transform: scale(1.02);
+}
+
+.alarm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alarm-time {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.alarm-label {
+    font-size: 18px;
+    color: #fff;
+}
+
+.alarm-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.alarm-actions button {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    background: linear-gradient(135deg, #81ecec, #6c5ce7);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.alarm-actions button:hover {
+    background: linear-gradient(135deg, #55efc4, #74b9ff);
+}
+
+input[type="time"], input[type="text"] {
+    padding: 10px;
+    font-size: 18px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    background: #f3f4f6;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    font-size: 18px;
+    background: linear-gradient(135deg, #81ecec, #6c5ce7);
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+button[type="submit"]:hover {
+    background: linear-gradient(135deg, #55efc4, #74b9ff)
+}
+
+.edit-container {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-container.active {
+    display: flex;
+}
+
+.save-button {
+    padding: 8px 12px;
+    font-size: 16px;
+    background-color: #74ebd5;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: #fed6e3;
+}
+
+.alarm-triggered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    z-index: 1000;
+}
+
+.alarm-triggered img {
+    max-width: 90%;
+    max-height: 70%;
+    border-radius: 8px;
+}
+
+.alarm-triggered button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background: #ff6b6b;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.alarm-triggered button:hover {
+    background: #ff4757;
+}
+
+</style>
+<body>
+    <div class="container">
+        <div class="alarm-form">
+            <h1>Settings</h1>
+            <form id="alarmForm">
+                <input type="time" id="alarmTime" required>
+                <input type="text" id="alarmLabel" placeholder="Event">
+                <button type="submit">Add alarm</button>
+            </form>
+        </div>
+        <div class="alarm-list" id="alarmList">
+            <!-- The list of alarms will be here -->
+        </div>
+    </div>
+    <div class="alarm-triggered" id="alarmTriggeredContainer" style="display: none;">
+        <h1>Time to move!</h1>
+        <img id="alarmImage" src="/static/public/poto.png.webp" alt="Alarm Image">
+        <audio id="alarmSound" src="/static/public/rychanie-zloy-sobaki-yui.mp3" preload="auto" loop></audio>
+        <button onclick="stopAlarm()">Stop</button>
+    </div>
+    <script>
+        let alarmCount = 0;
+const alarmForm = document.getElementById('alarmForm');
+const alarmList = document.getElementById('alarmList');
+const alarmTriggeredContainer = document.getElementById('alarmTriggeredContainer');
+const alarmSound = document.getElementById('alarmSound');
+const alarmImage = document.getElementById('alarmImage');
+
+alarmForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const alarmTime = document.getElementById('alarmTime').value;
+    const alarmLabel = document.getElementById('alarmLabel').value || `Alarm clock ${alarmCount + 1}`;
+    addAlarm(alarmTime, alarmLabel);
+    alarmForm.reset();
+});
+
+function addAlarm(time, label) {
+    alarmCount++;
+
+    const alarmItem = document.createElement('div');
+    alarmItem.className = 'alarm-item';
+    alarmItem.id = `alarm-${alarmCount}`;
+
+    const alarmHeader = document.createElement('div');
+    alarmHeader.className = 'alarm-header';
+
+    const alarmDetails = document.createElement('div');
+    alarmDetails.innerHTML = `<span class="alarm-time">${time}</span> - <span class="alarm-label">${label}</span>`;
+    alarmHeader.appendChild(alarmDetails);
+
+    const alarmActions = document.createElement('div');
+    alarmActions.className = 'alarm-actions';
+
+    const editButton = document.createElement('button');
+    editButton.innerText = 'Edit';
+    editButton.addEventListener('click', () => toggleEditContainer(alarmItem));
+
+    const deleteButton = document.createElement('button');
+    deleteButton.innerText = 'Delete';
+    deleteButton.addEventListener('click', () => alarmItem.remove());
+
+    alarmActions.appendChild(editButton);
+    alarmActions.appendChild(deleteButton);
+    alarmHeader.appendChild(alarmActions);
+    alarmItem.appendChild(alarmHeader);
+
+    const editContainer = document.createElement('div');
+    editContainer.className = 'edit-container';
+    editContainer.innerHTML = `
+        <input type="time" value="${time}" class="edit-time">
+        <input type="text" value="${label}" class="edit-label">
+        <button class="save-button" onclick="saveEdit(${alarmCount})">Save</button>
+    `;
+    alarmItem.appendChild(editContainer);
+
+    alarmList.appendChild(alarmItem);
+
+    checkAlarms();
+}
+
+function toggleEditContainer(alarmItem) {
+    const editContainer = alarmItem.querySelector('.edit-container');
+    editContainer.classList.toggle('active');
+}
+
+function saveEdit(alarmId) {
+    const alarmItem = document.getElementById(`alarm-${alarmId}`);
+    const editContainer = alarmItem.querySelector('.edit-container');
+    const newTime = editContainer.querySelector('.edit-time').value;
+    const newLabel = editContainer.querySelector('.edit-label').value;
+    
+    alarmItem.querySelector('.alarm-time').innerText = newTime;
+    alarmItem.querySelector('.alarm-label').innerText = newLabel;
+    
+    toggleEditContainer(alarmItem);
+}
+
+function checkAlarms() {
+    const now = new Date();
+    const currentTime = now.toTimeString().substr(0, 5);
+
+    const alarms = document.querySelectorAll('.alarm-item');
+    alarms.forEach(alarm => {
+        const alarmTime = alarm.querySelector('.alarm-time').innerText;
+        if (alarmTime === currentTime) {
+            showAlarm();
+        }
+    });
+}
+
+function showAlarm() {
+    alarmSound.play();
+    alarmTriggeredContainer.style.display = 'flex';
+}
+
+function stopAlarm() {
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+    alarmTriggeredContainer.style.display = 'none';
+}
+
+// Checking alarms every minute
+setInterval(checkAlarms, 60000);
+
+// Checking available alarms on page load
+checkAlarms();
+
+    </script>
+</body>
+</html>
